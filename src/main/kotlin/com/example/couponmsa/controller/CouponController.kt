@@ -1,6 +1,7 @@
 package com.example.couponmsa.controller
 
 import com.example.couponmsa.domain.Coupon
+import com.example.couponmsa.domain.UserCoupon
 import com.example.couponmsa.domain.of
 import com.example.couponmsa.domain.toSuccessHttpResponse
 import com.example.couponmsa.service.CouponService
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -32,6 +34,17 @@ class CouponController(private val couponService: CouponService) {
             body(couponService.createCoupon(Coupon.of(req)).
             toSuccessHttpResponse()).
             also { log.info("created coupon: $it")}
+        }
+
+    @PostMapping(path = ["/{couponId}/issuance"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(method="issueCoupon")
+    suspend fun issueCoupon(@Valid @RequestBody req: IssueCouponDto, @PathVariable couponId: Long) =
+        withTimeout(timeOutMillis) {
+            ResponseEntity.
+            status(HttpStatus.CREATED).
+            body(couponService.issueCoupon(UserCoupon.of(req, couponId)).
+            toSuccessHttpResponse()).
+            also { log.info("issued coupon: $it")}
         }
 
     companion object {

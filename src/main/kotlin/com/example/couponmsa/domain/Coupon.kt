@@ -18,19 +18,17 @@ data class Coupon(
     @Column("coupon_id") @Id var id: Long? = null,
     @Column("name") val name: String,
     @get: Min(value = 1) @Column("max_issuance_count") val maxIssuanceCount: Int? = null,
-    @Column("usage_start_dt") val usageStartDt: LocalDateTime,
-    @Column("usage_exp_dt") val usageExpDt: LocalDateTime,
+    @Column("usage_start_at") val usageStartAt: LocalDateTime,
+    @Column("usage_exp_at") val usageExpAt: LocalDateTime,
     @get: Min(value = 1) @Column("days_before_exp") val daysBeforeExp: Int,
     @Column("discount_amount") val discountAmount: Int,
     @Column("discount_type") val discountType: DiscountType,
-
+    @Column("issued_count") var issuedCount: Int
     ) {
 
-
-
-    @AssertTrue(message = "usageStartDt must be before usageExpDt")
+    @AssertTrue(message = "usageStartAt must be before usageExpAt")
     fun isValidUsagePeriod(): Boolean {
-        return usageStartDt.isBefore(usageExpDt)
+        return usageStartAt.isBefore(usageExpAt)
     }
 
 
@@ -47,6 +45,19 @@ data class Coupon(
         return true
     }
 
+    fun isOutOfStock(): Boolean {
+        if (maxIssuanceCount == null) {
+            return false
+        }
+
+        return maxIssuanceCount == issuedCount
+    }
+
+    fun incrementIssuedCount() {
+        issuedCount += 1
+    }
+
+
     companion object
 }
 
@@ -55,11 +66,12 @@ fun Coupon.Companion.of(request: CreateCouponDto): Coupon {
         id=null,
         name=request.name,
         maxIssuanceCount = request.maxIssuanceCount,
-        usageStartDt = request.usageStartDt,
-        usageExpDt = request.usageExpDt,
+        usageStartAt = request.usageStartAt,
+        usageExpAt = request.usageExpAt,
         daysBeforeExp = request.daysBeforeExp,
         discountAmount = request.discountAmount,
-        discountType = request.discountType
+        discountType = request.discountType,
+        issuedCount = 0,
     )
 }
 

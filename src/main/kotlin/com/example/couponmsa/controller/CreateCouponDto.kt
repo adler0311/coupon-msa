@@ -13,9 +13,9 @@ data class CreateCouponDto(
 
     @get: Min(value = 1)  val maxIssuanceCount: Int? = null,
 
-    val usageStartDt: LocalDateTime,
+    val usageStartAt: LocalDateTime,
 
-    val usageExpDt: LocalDateTime,
+    val usageExpAt: LocalDateTime,
 
     @get: Min(value = 1) val daysBeforeExp: Int,
 
@@ -25,9 +25,9 @@ data class CreateCouponDto(
 
     ) {
     @Hidden
-    @AssertTrue(message = "usageStartDt must be before usageExpDt")
+    @AssertTrue(message = "usageStartAt must be before usageExpAt")
     fun isValidUsagePeriod(): Boolean {
-        return usageStartDt.isBefore(usageExpDt)
+        return usageStartAt.isBefore(usageExpAt)
     }
 
     @Hidden
