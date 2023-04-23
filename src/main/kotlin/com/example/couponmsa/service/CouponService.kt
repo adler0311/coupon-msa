@@ -64,6 +64,11 @@ class CouponService(
         }
     }
 
+    suspend fun getCoupon(couponId: Long): Coupon =
+        withContext(Dispatchers.IO) {
+            couponRepository.findById(couponId) ?: throw CouponNotFound("coupon not found for id: ${couponId}")
+        }
+
 }
 
 class CouponNotFound(message: String): RuntimeException(message)
