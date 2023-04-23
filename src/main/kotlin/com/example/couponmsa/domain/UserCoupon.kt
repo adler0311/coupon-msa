@@ -35,9 +35,14 @@ data class UserCoupon(
             null
         }
     }
+    val isUsed: Boolean
+        get() {
+            return usedAt != null
+        }
 
     companion object
 }
+
 
 fun UserCoupon.Companion.of(request: IssueCouponDto, couponId: Long): UserCoupon {
     return UserCoupon(

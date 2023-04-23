@@ -42,7 +42,9 @@ class UserCouponController(private val userCouponService: UserCouponService) {
     ) =
         withTimeout(timeOutMills) {
             ResponseEntity.
-                    status(HttpStatus.OK).body(userCouponService.useCoupon(userId, couponId, useUserCouponDto.usageStatus)).also { log.info("coupon used: $it")}
+            status(HttpStatus.OK).
+            body(UseUserCouponResponse(userCouponService.useCoupon(userId, couponId, useUserCouponDto.usageStatus)))
+                .also { log.info("coupon used: $it")}
         }
 
     @DeleteMapping(path = ["/{couponId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -60,7 +62,7 @@ class UserCouponController(private val userCouponService: UserCouponService) {
 
     companion object {
         private val log = LoggerFactory.getLogger(UserCouponController::class.java)
-        private const val timeOutMills = 5000L
+        private const val timeOutMills = 10000L
     }
 
 }
