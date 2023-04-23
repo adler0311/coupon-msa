@@ -47,7 +47,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:r2dbc'
+	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'mysql:mysql-connector-java:8.0.28'
+
 }
 
 dependencyManagement {
