@@ -28,6 +28,14 @@ data class UserCoupon(
         expiredAt = minOf(existingCoupon.usageExpAt, now.plusDays(existingCoupon.daysBeforeExp.toLong()))
     }
 
+    fun use(usageStatus: Boolean) {
+        usedAt = if (usageStatus) {
+            LocalDateTime.now()
+        } else {
+            null
+        }
+    }
+
     companion object
 }
 
