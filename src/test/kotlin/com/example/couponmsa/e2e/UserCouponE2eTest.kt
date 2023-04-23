@@ -5,13 +5,18 @@ import com.example.couponmsa.domain.DiscountType
 import com.example.couponmsa.domain.UserCoupon
 import com.example.couponmsa.service.CouponService
 import com.example.couponmsa.service.UseUserCouponDto
+import com.example.couponmsa.service.UserCouponDto
 import com.example.couponmsa.service.UserCouponService
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import java.time.LocalDateTime
 
@@ -96,6 +101,40 @@ class UserCouponE2eTest(
             .jsonPath("$.isUsed").isEqualTo(usageStatus)
     }
 
+
+    @Test
+    fun `deleteUserCoupon should delete UserCoupon`(): Unit = runBlocking {
+        // given
+        // create coupon
+        val createdCoupon: Coupon = couponService.createCoupon(
+            Coupon(
+                daysBeforeExp = 1,
+                discountAmount = 10,
+                discountType = DiscountType.RATE,
+                issuedCount = 1,
+                usageExpAt = LocalDateTime.now().plusDays(3),
+                usageStartAt = LocalDateTime.now(),
+                name = "Test Coupon"))
+
+        // issue coupon
+        val userId: Long = 1
+        couponService.issueCoupon(
+            UserCoupon(
+                couponId = createdCoupon.id!!,
+                userId = userId,
+            )
+        )
+
+        // when, then
+        webTestClient.delete()
+            .uri("/api/v1/users/{userId}/coupons/{couponId}", userId, createdCoupon.id)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk
+
+        val pageUserCouponDto: Page<UserCouponDto> = userCouponService.getUserCoupons(userId, PageRequest.of(1, 10))
+        Assertions.assertEquals(0, pageUserCouponDto.totalElements)
+    }
 
 
     companion object {
