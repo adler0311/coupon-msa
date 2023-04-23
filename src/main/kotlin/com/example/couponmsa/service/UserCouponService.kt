@@ -23,6 +23,13 @@ class UserCouponService(private val userCouponRepository: UserCouponMySQLReposit
             userCouponIRepository.save(existingIssuedCoupon)
             true
         }
+
+    suspend fun deleteUserCoupon(userId: Long, couponId: Long): Boolean =
+        withContext(Dispatchers.IO) {
+            val existingIssuedCoupon = userCouponIRepository.findByCouponIdAndUserId(couponId, userId) ?: throw UserCouponNotFound("issued coupon not found with user_id: ${userId}, coupon_id: ${couponId}")
+            userCouponIRepository.delete(existingIssuedCoupon)
+            true
+        }
 }
 
 class UserCouponNotFound(message: String) : RuntimeException(message)

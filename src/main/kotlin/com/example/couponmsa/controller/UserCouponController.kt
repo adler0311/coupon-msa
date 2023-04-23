@@ -10,13 +10,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @Tag(name = "User Coupon", description = "User Coupon REST Controller")
 @RestController
@@ -38,7 +32,7 @@ class UserCouponController(private val userCouponService: UserCouponService) {
             also { log.info("user coupons: $it")}
         }
 
-    @PatchMapping(path = ["/coupons/{couponId}/usage"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PatchMapping(path = ["/{couponId}/usage"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(
         method = "useUserCoupon"
     )
@@ -49,6 +43,18 @@ class UserCouponController(private val userCouponService: UserCouponService) {
         withTimeout(timeOutMills) {
             ResponseEntity.
                     status(HttpStatus.OK).body(userCouponService.useCoupon(userId, couponId, useUserCouponDto.usageStatus)).also { log.info("coupon used: $it")}
+        }
+
+    @DeleteMapping(path = ["/{couponId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        method = "deleteUserCoupon"
+    )
+    suspend fun deleteUserCoupon(@PathVariable userId: Long,
+                              @PathVariable couponId: Long,
+    ) =
+        withTimeout(timeOutMills) {
+            ResponseEntity.
+            status(HttpStatus.OK).body(userCouponService.deleteUserCoupon(userId, couponId)).also { log.info("coupon used: $it")}
         }
 
 
