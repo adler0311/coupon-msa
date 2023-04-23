@@ -32,6 +32,22 @@ class CouponController(private val couponService: CouponService) {
             also { log.info("created coupon: $it")}
         }
 
+    @PutMapping(path = ["/{couponId}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Operation(
+        method = "updateCoupon"
+    )
+    suspend fun updateCoupon(@Valid @RequestBody req: UpdateCouponDto,
+                             @PathVariable couponId: Long
+                             ) =
+        withTimeout(timeOutMillis) {
+            ResponseEntity.
+            status(HttpStatus.OK).
+            body(couponService.updateCoupon(Coupon.of(req), couponId).
+            toSuccessHttpResponse()).
+            also { log.info("created coupon: $it")}
+        }
+
+
     @PostMapping(path = ["/{couponId}/issuance"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(method="issueCoupon")
     suspend fun issueCoupon(@Valid @RequestBody req: IssueCouponDto, @PathVariable couponId: Long) =

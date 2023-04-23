@@ -2,27 +2,24 @@ package com.example.couponmsa.domain
 
 import com.example.couponmsa.controller.CreateCouponDto
 import com.example.couponmsa.controller.SuccessCouponResponse
-import com.fasterxml.jackson.annotation.JsonIgnore
-import io.swagger.v3.oas.annotations.Hidden
-import io.swagger.v3.oas.annotations.media.Schema
+import com.example.couponmsa.controller.UpdateCouponDto
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
 import javax.validation.constraints.AssertTrue
 import javax.validation.constraints.Min
-import javax.validation.constraints.Size
 
 @Table(schema = "coupon_microservice", name="coupon")
 data class Coupon(
     @Column("coupon_id") @Id var id: Long? = null,
-    @Column("name") val name: String,
-    @get: Min(value = 1) @Column("max_issuance_count") val maxIssuanceCount: Int? = null,
-    @Column("usage_start_at") val usageStartAt: LocalDateTime,
-    @Column("usage_exp_at") val usageExpAt: LocalDateTime,
-    @get: Min(value = 1) @Column("days_before_exp") val daysBeforeExp: Int,
-    @Column("discount_amount") val discountAmount: Int,
-    @Column("discount_type") val discountType: DiscountType,
+    @Column("name") var name: String,
+    @get: Min(value = 1) @Column("max_issuance_count") var maxIssuanceCount: Int? = null,
+    @Column("usage_start_at") var usageStartAt: LocalDateTime,
+    @Column("usage_exp_at") var usageExpAt: LocalDateTime,
+    @get: Min(value = 1) @Column("days_before_exp") var daysBeforeExp: Int,
+    @Column("discount_amount") var discountAmount: Int,
+    @Column("discount_type") var discountType: DiscountType,
     @Column("issued_count") var issuedCount: Int
     ) {
 
@@ -57,11 +54,36 @@ data class Coupon(
         issuedCount += 1
     }
 
+    fun update(couponUpdateData: Coupon) {
+        name = couponUpdateData.name
+        maxIssuanceCount = couponUpdateData.maxIssuanceCount
+        usageStartAt = couponUpdateData.usageStartAt
+        usageExpAt = couponUpdateData.usageExpAt
+        daysBeforeExp = couponUpdateData.daysBeforeExp
+        discountAmount = couponUpdateData.discountAmount
+        discountType = couponUpdateData.discountType
+    }
 
-    companion object
+
+    companion object {
+    }
 }
 
 fun Coupon.Companion.of(request: CreateCouponDto): Coupon {
+    return Coupon(
+        id=null,
+        name=request.name,
+        maxIssuanceCount = request.maxIssuanceCount,
+        usageStartAt = request.usageStartAt,
+        usageExpAt = request.usageExpAt,
+        daysBeforeExp = request.daysBeforeExp,
+        discountAmount = request.discountAmount,
+        discountType = request.discountType,
+        issuedCount = 0,
+    )
+}
+
+fun Coupon.Companion.of(request: UpdateCouponDto): Coupon {
     return Coupon(
         id=null,
         name=request.name,

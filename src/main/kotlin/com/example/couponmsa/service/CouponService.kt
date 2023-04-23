@@ -22,6 +22,16 @@ class CouponService(
             couponRepository.save(coupon)
         }
 
+    suspend fun updateCoupon(couponUpdateData: Coupon, couponId: Long): Coupon =
+        withContext(Dispatchers.IO) {
+            val existingCoupon = couponRepository.findById(couponId)
+                ?: throw CouponNotFound("coupon not found with id: ${couponId}")
+
+            existingCoupon.update(couponUpdateData)
+            couponRepository.save(existingCoupon)
+        }
+
+
     suspend fun issueCoupon(@Valid userCoupon: UserCoupon): UserCoupon =
         withContext(Dispatchers.IO) {
             val existingCoupon = couponRepository.findById(userCoupon.couponId)
@@ -53,6 +63,7 @@ class CouponService(
             throw CouponAlreadyIssued()
         }
     }
+
 }
 
 class CouponNotFound(message: String): RuntimeException(message)
