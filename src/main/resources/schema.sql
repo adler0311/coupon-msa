@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `coupon_microservice`.`user_coupon` (
     `coupon_id` BIGINT(20) NOT NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `used_at` DATETIME,
+    `expired_at` DATETIME,
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_user_coupon_coupon`
     FOREIGN KEY (`coupon_id`)

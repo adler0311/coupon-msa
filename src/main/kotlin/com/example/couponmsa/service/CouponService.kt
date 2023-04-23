@@ -29,6 +29,8 @@ class CouponService(
             val existingIssuedCoupon = userCouponRepository.findByCouponIdAndUserId(userCoupon.couponId, userCoupon.userId)
 
             validateIssuable(existingCoupon, existingIssuedCoupon)
+
+            userCoupon.setExpiredAt(existingCoupon)
             existingCoupon.incrementIssuedCount()
 
             couponRepository.save(existingCoupon)
