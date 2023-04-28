@@ -61,7 +61,7 @@ class CouponService(
         val expDateTime = minOf(expAfterIssued, existingCoupon.usageExpAt)
 
         if (LocalDateTime.now() < expDateTime) {
-            throw CouponAlreadyIssued()
+            throw CouponAlreadyIssued("already issued coupon. userId: ${existingIssuedCoupon.userId}, couponId: ${existingIssuedCoupon.couponId}")
         }
     }
 
@@ -75,4 +75,4 @@ class CouponService(
 class CouponNotFound(message: String): RuntimeException(message)
 class CouponRunOutOfStock(message: String = "out of stock"): RuntimeException(message)
 
-class CouponAlreadyIssued(message: String = "already issued coupon"): RuntimeException(message)
+class CouponAlreadyIssued(message: String): RuntimeException(message)
