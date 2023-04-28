@@ -32,6 +32,7 @@ class CouponService(
         }
 
 
+    @Transactional
     suspend fun issueCoupon(@Valid userCoupon: UserCoupon): UserCoupon =
         withContext(Dispatchers.IO) {
             val existingCoupon = couponRepository.findById(userCoupon.couponId)
@@ -59,7 +60,7 @@ class CouponService(
         val expAfterIssued: LocalDateTime = existingIssuedCoupon.createdAt!!.plusDays(existingCoupon.daysBeforeExp.toLong())
         val expDateTime = minOf(expAfterIssued, existingCoupon.usageExpAt)
 
-        if (LocalDateTime.now() >= expDateTime) {
+        if (LocalDateTime.now() < expDateTime) {
             throw CouponAlreadyIssued()
         }
     }
