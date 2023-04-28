@@ -24,3 +24,6 @@ CREATE TABLE IF NOT EXISTS `coupon_microservice`.`user_coupon` (
     FOREIGN KEY (`coupon_id`)
     REFERENCES `coupon_microservice`.`coupon` (`coupon_id`)
     ) ENGINE = InnoDB;
+
+
+ADD INDEX `ix_user_id_expired_at` (`user_id` ASC, `expired_at` DESC) VISIBLE;
