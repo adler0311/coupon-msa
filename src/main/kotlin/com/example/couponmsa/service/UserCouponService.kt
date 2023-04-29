@@ -19,7 +19,7 @@ class UserCouponService(private val userCouponRepository: UserCouponMySQLReposit
 
     suspend fun useCoupon(userId: Long, couponId: Long, usageStatus: Boolean): Boolean =
         withContext(Dispatchers.IO) {
-            val existingIssuedCoupon = userCouponIRepository.findByCouponIdAndUserId(couponId, userId) ?: throw UserCouponNotFound("issued coupon not found with user_id: ${userId}, coupon_id: ${couponId}")
+            val existingIssuedCoupon = userCouponIRepository.findByUserIdAndCouponId(userId, couponId) ?: throw UserCouponNotFound("issued coupon not found with user_id: ${userId}, coupon_id: ${couponId}")
             existingIssuedCoupon.use(usageStatus)
             userCouponIRepository.save(existingIssuedCoupon)
             existingIssuedCoupon.isUsed
@@ -27,7 +27,7 @@ class UserCouponService(private val userCouponRepository: UserCouponMySQLReposit
 
     suspend fun deleteUserCoupon(userId: Long, couponId: Long): Boolean =
         withContext(Dispatchers.IO) {
-            val existingIssuedCoupon = userCouponIRepository.findByCouponIdAndUserId(couponId, userId) ?: throw UserCouponNotFound("issued coupon not found with user_id: ${userId}, coupon_id: ${couponId}")
+            val existingIssuedCoupon = userCouponIRepository.findByUserIdAndCouponId(userId, couponId) ?: throw UserCouponNotFound("issued coupon not found with user_id: ${userId}, coupon_id: ${couponId}")
             userCouponIRepository.delete(existingIssuedCoupon)
             true
         }

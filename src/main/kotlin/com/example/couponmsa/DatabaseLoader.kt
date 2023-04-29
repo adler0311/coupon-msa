@@ -32,7 +32,7 @@ class DatabaseLoader(
         val userCoupons = List(1_000_000) { i ->
             UserCoupon(
                 userId = (i + 1).toLong(),
-                couponId = ((i + 1) % 4 + 1).toLong(),
+                couponId = 2L,
                 expiredAt = LocalDateTime.now().plusDays(100)
             )
         }.asFlow()

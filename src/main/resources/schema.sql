@@ -28,4 +28,8 @@ CREATE TABLE IF NOT EXISTS `coupon_microservice`.`user_coupon` (
 
 ALTER TABLE `coupon_microservice`.`user_coupon`
     ADD INDEX `ix_user_id_expired_at` (`user_id` ASC, `expired_at` DESC) VISIBLE;
-;
+
+
+ALTER TABLE `coupon_microservice`.`user_coupon`
+    ADD INDEX `ix_user_id_coupon_id` (`user_id` ASC, `coupon_id` ASC) VISIBLE;
+ALTER TABLE `coupon_microservice`.`user_coupon` ALTER INDEX `fk_user_coupon_coupon` INVISIBLE;

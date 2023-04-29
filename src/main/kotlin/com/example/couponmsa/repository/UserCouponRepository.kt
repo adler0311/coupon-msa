@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserCouponRepository: CoroutineSortingRepository<UserCoupon, Long> {
-    suspend fun findByCouponIdAndUserId(couponId: Long, userId: Long): UserCoupon?
+    suspend fun findByUserIdAndCouponId(userId: Long, couponId: Long): UserCoupon?
 
 }

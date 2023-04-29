@@ -37,7 +37,7 @@ class CouponService(
         withContext(Dispatchers.IO) {
             val existingCoupon = couponRepository.findById(userCoupon.couponId)
                 ?: throw CouponNotFound("coupon not found with id: ${userCoupon.couponId}")
-            val existingIssuedCoupon = userCouponRepository.findByCouponIdAndUserId(userCoupon.couponId, userCoupon.userId)
+            val existingIssuedCoupon = userCouponRepository.findByUserIdAndCouponId(userCoupon.userId, userCoupon.couponId)
 
             validateIssuable(existingCoupon, existingIssuedCoupon)
 
