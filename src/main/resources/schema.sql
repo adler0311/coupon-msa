@@ -26,4 +26,6 @@ CREATE TABLE IF NOT EXISTS `coupon_microservice`.`user_coupon` (
     ) ENGINE = InnoDB;
 
 
-ADD INDEX `ix_user_id_expired_at` (`user_id` ASC, `expired_at` DESC) VISIBLE;
+ALTER TABLE `coupon_microservice`.`user_coupon`
+    ADD INDEX `ix_user_id_expired_at` (`user_id` ASC, `expired_at` DESC) VISIBLE;
+;
