@@ -106,7 +106,7 @@ class CouponE2eTest(
             .expectBody()
             .jsonPath("$.id").isEqualTo(1L)
 
-        val userCoupon = userCouponRepository.findByCouponIdAndUserId(couponId = createdCoupon.id!!, userId=userId)
+        val userCoupon = userCouponRepository.findByUserIdAndCouponId(userId=userId, couponId = createdCoupon.id!!)
         assertNotNull(userCoupon)
     }
 }
