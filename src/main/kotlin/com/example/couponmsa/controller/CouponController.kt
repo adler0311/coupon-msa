@@ -61,6 +61,6 @@ class CouponController(private val couponService: CouponService) {
 
     companion object {
         private val log = LoggerFactory.getLogger(CouponController::class.java)
-        private const val timeOutMillis = 5000L
+        private const val timeOutMillis = 10000L
     }
 }

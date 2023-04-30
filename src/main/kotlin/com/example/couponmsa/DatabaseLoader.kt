@@ -24,7 +24,7 @@ class DatabaseLoader(
 
     override fun run(vararg args: String?) {
         ioScope.launch {
-            createAndSaveUserCoupons()
+//            createAndSaveUserCoupons()
         }
     }
     private suspend fun createAndSaveUserCoupons() {
