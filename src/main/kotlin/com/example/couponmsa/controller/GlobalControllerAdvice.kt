@@ -1,5 +1,9 @@
 package com.example.couponmsa.controller
 
+import com.example.couponmsa.service.CouponAlreadyIssued
+import com.example.couponmsa.service.CouponNotFound
+import com.example.couponmsa.service.CouponRunOutOfStock
+import com.example.couponmsa.service.UserCouponNotFound
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
@@ -29,6 +33,30 @@ class GlobalControllerAdvice {
             .body(errorHttpResponse).also {
             log.error("(GlobalControllerAdvice) INTERNAL_SERVER_ERROR RuntimeException", ex)
         }
+    }
+
+    @ExceptionHandler(value = [CouponRunOutOfStock::class, CouponAlreadyIssued::class])
+    fun handleInvalidAmountExceptionException(
+        ex: RuntimeException,
+        request: ServerHttpRequest
+    ): ResponseEntity<ErrorHttpResponse> {
+        val errorHttpResponse =
+            ErrorHttpResponse(HttpStatus.BAD_REQUEST.value(), ex.message ?: "", LocalDateTime.now().toString())
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+            .body(errorHttpResponse)
+            .also { log.error("(GlobalControllerAdvice) BAD_REQUEST", ex) }
+    }
+
+    @ExceptionHandler(value = [CouponNotFound::class, UserCouponNotFound::class])
+    fun handleNotFoundException(
+        ex: RuntimeException,
+        request: ServerHttpRequest
+    ): ResponseEntity<ErrorHttpResponse> {
+        val errorHttpResponse =
+            ErrorHttpResponse(HttpStatus.NOT_FOUND.value(), ex.message ?: "", LocalDateTime.now().toString())
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON)
+            .body(errorHttpResponse)
+            .also { log.error("(GlobalControllerAdvice) NOT_FOUND", ex) }
     }
 
 
