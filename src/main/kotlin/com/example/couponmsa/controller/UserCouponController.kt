@@ -1,5 +1,7 @@
 package com.example.couponmsa.controller
 
+import com.example.couponmsa.controller.schema.UseUserCouponResponse
+import com.example.couponmsa.controller.schema.UserCouponListRequest
 import com.example.couponmsa.service.UseUserCouponDto
 import com.example.couponmsa.service.UserCouponService
 import io.swagger.v3.oas.annotations.Operation
@@ -28,7 +30,7 @@ class UserCouponController(private val userCouponService: UserCouponService) {
         withTimeout(timeOutMills) {
             ResponseEntity.
             status(HttpStatus.OK).
-            body(UserCouponListDto.of(userCouponService.getUserCoupons(userId, PageRequest.of(page-1, size)))).
+            body(UserCouponListRequest.of(userCouponService.getUserCoupons(userId, PageRequest.of(page-1, size)))).
             also { log.info("user coupons: $it")}
         }
 

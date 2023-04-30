@@ -1,7 +1,7 @@
 package com.example.couponmsa.domain
 
-import com.example.couponmsa.controller.IssueCouponDto
-import com.example.couponmsa.controller.SuccessUserCouponResponse
+import com.example.couponmsa.controller.schema.IssueCouponRequest
+import com.example.couponmsa.controller.schema.SuccessUserCouponResponse
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
@@ -44,7 +44,7 @@ data class UserCoupon(
 }
 
 
-fun UserCoupon.Companion.of(request: IssueCouponDto, couponId: Long): UserCoupon {
+fun UserCoupon.Companion.of(request: IssueCouponRequest, couponId: Long): UserCoupon {
     return UserCoupon(
         id=null,
         userId=request.userId,

@@ -1,4 +1,4 @@
-package com.example.couponmsa.controller
+package com.example.couponmsa.controller.schema
 
 import com.example.couponmsa.domain.DiscountType
 import io.swagger.v3.oas.annotations.Hidden
@@ -7,7 +7,7 @@ import javax.validation.constraints.AssertTrue
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
-data class UpdateCouponDto(
+data class UpdateCouponRequest(
     @field: NotBlank
     val name: String,
 

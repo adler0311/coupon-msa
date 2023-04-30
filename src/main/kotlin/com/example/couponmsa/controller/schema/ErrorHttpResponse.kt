@@ -1,4 +1,4 @@
-package com.example.couponmsa.controller
+package com.example.couponmsa.controller.schema
 
 data class ErrorHttpResponse(
     val status: Int,

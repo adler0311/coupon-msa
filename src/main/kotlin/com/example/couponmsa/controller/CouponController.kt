@@ -1,5 +1,8 @@
 package com.example.couponmsa.controller
 
+import com.example.couponmsa.controller.schema.CreateCouponRequest
+import com.example.couponmsa.controller.schema.IssueCouponRequest
+import com.example.couponmsa.controller.schema.UpdateCouponRequest
 import com.example.couponmsa.domain.Coupon
 import com.example.couponmsa.domain.UserCoupon
 import com.example.couponmsa.domain.of
@@ -23,7 +26,7 @@ class CouponController(private val couponService: CouponService) {
     @Operation(
         method = "createCoupon"
     )
-    suspend fun createCoupon(@Valid @RequestBody req: CreateCouponDto) =
+    suspend fun createCoupon(@Valid @RequestBody req: CreateCouponRequest) =
         withTimeout(timeOutMillis) {
             ResponseEntity.
             status(HttpStatus.CREATED).
@@ -36,7 +39,7 @@ class CouponController(private val couponService: CouponService) {
     @Operation(
         method = "updateCoupon"
     )
-    suspend fun updateCoupon(@Valid @RequestBody req: UpdateCouponDto,
+    suspend fun updateCoupon(@Valid @RequestBody req: UpdateCouponRequest,
                              @PathVariable couponId: Long
                              ) =
         withTimeout(timeOutMillis) {
@@ -50,7 +53,7 @@ class CouponController(private val couponService: CouponService) {
 
     @PostMapping(path = ["/{couponId}/issuance"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @Operation(method="issueCoupon")
-    suspend fun issueCoupon(@Valid @RequestBody req: IssueCouponDto, @PathVariable couponId: Long) =
+    suspend fun issueCoupon(@Valid @RequestBody req: IssueCouponRequest, @PathVariable couponId: Long) =
         withTimeout(timeOutMillis) {
             ResponseEntity.
             status(HttpStatus.CREATED).

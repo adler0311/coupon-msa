@@ -1,9 +1,9 @@
 package com.example.couponmsa.e2e
 
 
-import com.example.couponmsa.controller.CreateCouponDto
-import com.example.couponmsa.controller.IssueCouponDto
-import com.example.couponmsa.controller.UpdateCouponDto
+import com.example.couponmsa.controller.schema.CreateCouponRequest
+import com.example.couponmsa.controller.schema.IssueCouponRequest
+import com.example.couponmsa.controller.schema.UpdateCouponRequest
 import com.example.couponmsa.domain.Coupon
 import com.example.couponmsa.domain.DiscountType
 import com.example.couponmsa.repository.UserCouponRepository
@@ -25,7 +25,7 @@ class CouponE2eTest(
     @Test
     fun `should create a coupon and retrieve id of it`() {
         // given
-        val createCouponDto = CreateCouponDto(
+        val createCouponRequest = CreateCouponRequest(
             name = "Test Coupon",
             maxIssuanceCount = 100,
             usageStartAt = LocalDateTime.now(),
@@ -38,7 +38,7 @@ class CouponE2eTest(
         // when, then
         webTestClient.post().uri("/api/v1/coupons/")
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(createCouponDto)
+            .bodyValue(createCouponRequest)
             .exchange().expectStatus().isCreated
             .expectBody()
             .jsonPath("$.id").isEqualTo(1L)
@@ -60,7 +60,7 @@ class CouponE2eTest(
         val createdCoupon = couponService.createCoupon(aCoupon)
 
         // when
-        val updateCouponDto = UpdateCouponDto(
+        val updateCouponRequest = UpdateCouponRequest(
             name = "Test Coupon updated",
             maxIssuanceCount = 1,
             usageStartAt = LocalDateTime.now(),
@@ -73,13 +73,13 @@ class CouponE2eTest(
         // when, then
         webTestClient.put().uri("/api/v1/coupons/${createdCoupon.id}")
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(updateCouponDto)
+            .bodyValue(updateCouponRequest)
             .exchange().expectStatus().isOk
             .expectBody()
             .jsonPath("$.id").isEqualTo(createdCoupon.id!!)
 
         val theCoupon: Coupon = couponService.getCoupon(createdCoupon.id!!)
-        assertEquals(updateCouponDto.name, theCoupon.name)
+        assertEquals(updateCouponRequest.name, theCoupon.name)
     }
     @Test
     fun `should issue coupon to user and retrieve id of it`(): Unit = runBlocking{
@@ -101,7 +101,7 @@ class CouponE2eTest(
         // when, then
         webTestClient.post().uri("/api/v1/coupons/{couponId}/issuance", createdCoupon.id)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(IssueCouponDto(userId=userId))
+            .bodyValue(IssueCouponRequest(userId=userId))
             .exchange().expectStatus().isCreated
             .expectBody()
             .jsonPath("$.id").isEqualTo(1L)

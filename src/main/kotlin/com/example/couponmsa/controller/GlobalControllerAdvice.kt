@@ -1,5 +1,6 @@
 package com.example.couponmsa.controller
 
+import com.example.couponmsa.controller.schema.ErrorHttpResponse
 import com.example.couponmsa.service.CouponAlreadyIssued
 import com.example.couponmsa.service.CouponNotFound
 import com.example.couponmsa.service.CouponRunOutOfStock

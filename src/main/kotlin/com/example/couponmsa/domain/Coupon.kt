@@ -1,8 +1,8 @@
 package com.example.couponmsa.domain
 
-import com.example.couponmsa.controller.CreateCouponDto
-import com.example.couponmsa.controller.SuccessCouponResponse
-import com.example.couponmsa.controller.UpdateCouponDto
+import com.example.couponmsa.controller.schema.CreateCouponRequest
+import com.example.couponmsa.controller.schema.SuccessCouponResponse
+import com.example.couponmsa.controller.schema.UpdateCouponRequest
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -69,7 +69,7 @@ data class Coupon(
     }
 }
 
-fun Coupon.Companion.of(request: CreateCouponDto): Coupon {
+fun Coupon.Companion.of(request: CreateCouponRequest): Coupon {
     return Coupon(
         id=null,
         name=request.name,
@@ -83,7 +83,7 @@ fun Coupon.Companion.of(request: CreateCouponDto): Coupon {
     )
 }
 
-fun Coupon.Companion.of(request: UpdateCouponDto): Coupon {
+fun Coupon.Companion.of(request: UpdateCouponRequest): Coupon {
     return Coupon(
         id=null,
         name=request.name,
