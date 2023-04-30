@@ -1,6 +1,6 @@
 -- Insert 4 available coupons
 INSERT INTO coupon_microservice.coupon (name, max_issuance_count, usage_start_at, usage_exp_at, days_before_exp, discount_amount, discount_type)
-VALUES ('Coupon 1', 1000, '2023-05-01 00:00:00', '2023-05-31 23:59:59', 30, 10, 'VALUE');
+VALUES ('Coupon 1', 10000, '2023-05-01 00:00:00', '2023-05-31 23:59:59', 30, 10, 'VALUE');
 
 INSERT INTO coupon_microservice.coupon (name, max_issuance_count, usage_start_at, usage_exp_at, days_before_exp, discount_amount, discount_type)
 VALUES ('Coupon 2', 500, '2023-05-01 00:00:00', '2023-05-15 23:59:59', 14, 20, 'VALUE');
