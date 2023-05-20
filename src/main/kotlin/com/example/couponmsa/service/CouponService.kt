@@ -1,22 +1,26 @@
 package com.example.couponmsa.service
 
+
 import com.example.couponmsa.domain.Coupon
 import com.example.couponmsa.domain.UserCoupon
 import com.example.couponmsa.repository.CouponRepository
 import com.example.couponmsa.repository.UserCouponRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.springframework.data.redis.core.RedisOperations
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.SessionCallback
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 import javax.validation.Valid
+
 
 @Service
 class CouponService(
     private val couponRepository: CouponRepository,
     private val userCouponRepository: UserCouponRepository,
     private val redisTemplate: RedisTemplate<String, Long>,
+
 ) {
     @Transactional
     suspend fun createCoupon(@Valid coupon: Coupon): Coupon =
@@ -36,10 +40,6 @@ class CouponService(
         return "coupon:$couponId:maxIssuanceCount"
     }
 
-    private fun setIssuanceCountInRedis(couponId: Long) {
-        redisTemplate.opsForValue().set(getIssuanceCountRedisKey(couponId), 0L)
-    }
-
     suspend fun updateCoupon(couponUpdateData: Coupon, couponId: Long): Coupon =
         withContext(Dispatchers.IO) {
             val existingCoupon = couponRepository.findById(couponId)
@@ -53,47 +53,47 @@ class CouponService(
     @Transactional
     suspend fun issueCoupon(@Valid userCoupon: UserCoupon): UserCoupon =
         withContext(Dispatchers.IO) {
-            val existingCoupon = couponRepository.findById(userCoupon.couponId)
-                ?: throw CouponNotFound("coupon not found with id: ${userCoupon.couponId}")
-            val existingIssuedCoupon = userCouponRepository.findByUserIdAndCouponId(userCoupon.userId, userCoupon.couponId)
-
-            validateIssuable(existingCoupon, existingIssuedCoupon)
-
-            userCoupon.setExpiredAt(existingCoupon)
-            incrementIssuedCountInRedis(existingCoupon.id!!)
+            validateIssuable(userCoupon.couponId, userCoupon.userId)
             userCouponRepository.save(userCoupon)
-//            UserCoupon(id=1L, couponId=1L, userId=1)
         }
 
-    private fun incrementIssuedCountInRedis(couponId: Long) {
-        redisTemplate.opsForValue().increment(getIssuanceCountRedisKey(couponId), 1)
-    }
+    fun validateIssuable(existingCouponId: Long, issueUserId: Long) {
+        val sessionCallback = object : SessionCallback<List<Any>> {
+            override fun <K : Any, V : Any> execute(operations: RedisOperations<K, V>): List<Any> {
+                operations.multi()
+                getIssuedCountFromRedis(existingCouponId)
+                getMaxIssuedCountFromRedis(existingCouponId)
+                isIssuedUserFromRedis(existingCouponId, issueUserId)
+                return operations.exec()
+            }
+        }
 
-    private fun validateIssuable(existingCoupon: Coupon, existingIssuedCoupon: UserCoupon?) {
-        val issuedCount = getIssuedCountFromRedis(existingCoupon.id!!)
-        val maxIssuedCount = getMaxIssuedCountFromRedis(existingCoupon.id!!)
+        val results: List<Any> = redisTemplate.execute(sessionCallback)
+//        println(results)
+        val issuedCount = results[0] as Long
+        val maxIssuedCount = results[1] as Long?
+        val existingIssuedCoupon = results[2] as Long
+
         if (maxIssuedCount != null && issuedCount >= maxIssuedCount) {
             throw CouponRunOutOfStock()
         }
 
-        if (existingIssuedCoupon == null) {
-            return
+        if (existingIssuedCoupon == 0.toLong()) {
+            throw CouponAlreadyIssued("already issued coupon. userId: ${issueUserId}, couponId: $existingCouponId")
         }
+    }
 
-        throw CouponAlreadyIssued("already issued coupon. userId: ${existingIssuedCoupon.userId}, couponId: ${existingIssuedCoupon.couponId}")
+    private fun isIssuedUserFromRedis(existingCouponId: Long, issueUserId: Long): Boolean {
+        val result = redisTemplate.opsForSet().add(getCouponIssuedUsersRedisKey(existingCouponId), issueUserId)
+        return result == 0.toLong()
+    }
 
-//        val expAfterIssued: LocalDateTime = existingIssuedCoupon.createdAt!!.plusDays(existingCoupon.daysBeforeExp.toLong())
-//        val expDateTime = minOf(expAfterIssued, existingCoupon.usageExpAt)
-//
-//        if (LocalDateTime.now() < expDateTime) {
-//            throw CouponAlreadyIssued("already issued coupon. userId: ${existingIssuedCoupon.userId}, couponId: ${existingIssuedCoupon.couponId}")
-//        }
-
+    private fun getCouponIssuedUsersRedisKey(couponId: Long): String {
+        return "coupon:$couponId:issuedUsers"
     }
 
     private fun getMaxIssuedCountFromRedis(couponId: Long): Long? {
-        val result = redisTemplate.opsForValue().get(getMaxIssuanceCountRedisKey(couponId))
-        return result
+        return redisTemplate.opsForValue().get(getMaxIssuanceCountRedisKey(couponId))
     }
 
     private fun getIssuanceCountRedisKey(couponId: Long): String {
@@ -101,8 +101,8 @@ class CouponService(
     }
 
     private fun getIssuedCountFromRedis(couponId: Long): Long {
-        val result = redisTemplate.opsForValue().get(getIssuanceCountRedisKey(couponId))
-        return result ?: 0L
+        val issueCount = redisTemplate.opsForSet().size(getCouponIssuedUsersRedisKey(couponId))
+        return issueCount ?: 0L
     }
 
     suspend fun getCoupon(couponId: Long): Coupon =

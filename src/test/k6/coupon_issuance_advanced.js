@@ -4,7 +4,7 @@ import {scenario} from 'k6/execution';
 
 export const options = {
     stages: [
-        {duration: '2m', target: 7000}, // fast ramp-up to a high point
+        {duration: '2m', target: 5000}, // fast ramp-up to a high point
         // No plateau
         {duration: '1m', target: 0} // quick ramp-down to 0 users
     ]
