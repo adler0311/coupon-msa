@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS coupon_microservice;
 
-DROP TABLE coupon_microservice.user_coupon;
-DROP TABLE coupon_microservice.coupon;
+DROP TABLE if exists coupon_microservice.user_coupon;
+DROP TABLE if exists coupon_microservice.coupon;
 
 CREATE TABLE IF NOT EXISTS coupon_microservice.coupon (
     coupon_id BIGINT PRIMARY KEY AUTO_INCREMENT,

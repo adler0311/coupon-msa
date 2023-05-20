@@ -22,9 +22,19 @@ class CouponService(
     suspend fun createCoupon(@Valid coupon: Coupon): Coupon =
         withContext(Dispatchers.IO) {
             val savedCoupon = couponRepository.save(coupon)
-            setIssuanceCountInRedis(couponId=savedCoupon.id!!)
+            setMaxIssuanceCountInRedis(couponId=savedCoupon.id!!, maxIssuanceCount=savedCoupon.maxIssuanceCount)
             savedCoupon
         }
+
+    private fun setMaxIssuanceCountInRedis(couponId: Long, maxIssuanceCount: Int?) {
+        if (maxIssuanceCount != null) {
+            redisTemplate.opsForValue().set(getMaxIssuanceCountRedisKey(couponId), maxIssuanceCount.toLong())
+        }
+    }
+
+    private fun getMaxIssuanceCountRedisKey(couponId: Long): String {
+        return "coupon:$couponId:maxIssuanceCount"
+    }
 
     private fun setIssuanceCountInRedis(couponId: Long) {
         redisTemplate.opsForValue().set(getIssuanceCountRedisKey(couponId), 0L)
@@ -61,7 +71,8 @@ class CouponService(
 
     private fun validateIssuable(existingCoupon: Coupon, existingIssuedCoupon: UserCoupon?) {
         val issuedCount = getIssuedCountFromRedis(existingCoupon.id!!)
-        if (existingCoupon.maxIssuanceCount != null && issuedCount >= existingCoupon.maxIssuanceCount!!) {
+        val maxIssuedCount = getMaxIssuedCountFromRedis(existingCoupon.id!!)
+        if (maxIssuedCount != null && issuedCount >= maxIssuedCount) {
             throw CouponRunOutOfStock()
         }
 
@@ -69,12 +80,20 @@ class CouponService(
             return
         }
 
-        val expAfterIssued: LocalDateTime = existingIssuedCoupon.createdAt!!.plusDays(existingCoupon.daysBeforeExp.toLong())
-        val expDateTime = minOf(expAfterIssued, existingCoupon.usageExpAt)
+        throw CouponAlreadyIssued("already issued coupon. userId: ${existingIssuedCoupon.userId}, couponId: ${existingIssuedCoupon.couponId}")
 
-        if (LocalDateTime.now() < expDateTime) {
-            throw CouponAlreadyIssued("already issued coupon. userId: ${existingIssuedCoupon.userId}, couponId: ${existingIssuedCoupon.couponId}")
-        }
+//        val expAfterIssued: LocalDateTime = existingIssuedCoupon.createdAt!!.plusDays(existingCoupon.daysBeforeExp.toLong())
+//        val expDateTime = minOf(expAfterIssued, existingCoupon.usageExpAt)
+//
+//        if (LocalDateTime.now() < expDateTime) {
+//            throw CouponAlreadyIssued("already issued coupon. userId: ${existingIssuedCoupon.userId}, couponId: ${existingIssuedCoupon.couponId}")
+//        }
+
+    }
+
+    private fun getMaxIssuedCountFromRedis(couponId: Long): Long? {
+        val result = redisTemplate.opsForValue().get(getMaxIssuanceCountRedisKey(couponId))
+        return result
     }
 
     private fun getIssuanceCountRedisKey(couponId: Long): String {
