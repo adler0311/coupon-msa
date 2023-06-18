@@ -69,18 +69,24 @@ class CouponService(
         }
 
         val results: List<Any> = redisTemplate.execute(sessionCallback)
-//        println(results)
         val issuedCount = results[0] as Long
         val maxIssuedCount = results[1] as Long?
         val existingIssuedCoupon = results[2] as Long
 
         if (maxIssuedCount != null && issuedCount >= maxIssuedCount) {
+            rollbackIssuedUser(existingCouponId, issueUserId)
             throw CouponRunOutOfStock()
         }
 
         if (existingIssuedCoupon == 0.toLong()) {
             throw CouponAlreadyIssued("already issued coupon. userId: ${issueUserId}, couponId: $existingCouponId")
         }
+
+
+    }
+
+    private fun rollbackIssuedUser(existingCouponId: Long, issueUserId: Long) {
+        redisTemplate.opsForSet().remove(getCouponIssuedUsersRedisKey(existingCouponId), issueUserId)
     }
 
     private fun isIssuedUserFromRedis(existingCouponId: Long, issueUserId: Long): Boolean {
